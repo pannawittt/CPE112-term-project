@@ -8,6 +8,10 @@
 #define util_t int
 #endif // util_t
 
+#ifndef MOD
+#define MOD 1000000007
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -22,5 +26,7 @@ int greater(const util_t first, const util_t second);
 int greater_equal(const util_t first, const util_t second);
 int less(const util_t first, const util_t second);
 int less_equal(const util_t first, const util_t second);
+int mmod(int first, int second);
+int mod(int value);
 
 #endif // util.h
