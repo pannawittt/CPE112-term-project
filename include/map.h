@@ -1,39 +1,32 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
-#ifndef map_key_t
-#define map_key_t int
-#endif //map_key_t
+#ifdef MOD
+#undef MOD
+#endif // MOD
 
-#ifndef map_val_t
-#define map_val_t int
-#endif //map_val_t
-
+#define MOD 5
 #include "util.h"
+#include "pair.h"
 
 #define _red 1
-#define _balck 0
+#define _black 0
 
 typedef struct map_node{
-    map_key_t key;
-    map_val_t val;
-    struct map_node *left;
-    struct map_node *right;
+    pair value;
+    struct map_node *child[2];
     int color;
 }map_node;
-
-#define stack_t map_node
-#include "stack.h"
 
 typedef struct{
     map_node *root;
     int size;
-    int (*cmpr)(const map_key_t, const map_key_t);
+    int (*cmpr)(const pair_t1, const pair_t1);
 }map;
 
-map map_create(int (*cmpr_func)(const map_key_t, const map_key_t));
-map_val_t *map_get(map *_map, map_key_t key);
-map_node *map_create_node(map_key_t _key ,map_val_t _val);
-map_val_t *map_insert_node(map_key_t _key ,map_val_t _val);
+map map_create(int (*cmpr_func)(const pair_t1, const pair_t1));
+pair_t2 *map_get(map *_map, pair_t1 key);
+map_node *_map_create_node(pair _value);
+pair_t2 *_map_insert_node(map *_map, pair _value);
 
 #endif // map.h
