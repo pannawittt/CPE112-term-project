@@ -1,6 +1,6 @@
 #include "map.h"
 
-map map_create(int (*cmpr_func)(const pair_t1, const pair_t1)){
+map map_create(int (*cmpr_func)(const map_t1, const map_t1)){
     map new_map;
     new_map.root = NULL;
     new_map.size = 0;
@@ -8,50 +8,50 @@ map map_create(int (*cmpr_func)(const pair_t1, const pair_t1)){
     return new_map;
 }
 
-map_node* _map_create_node(pair _value){
+map_node* _map_create_node(map_t1 _key, map_t2 _value){
     map_node *new_node = (map_node *)malloc(sizeof(map_node));
     new_node->color = _red;
     new_node->child[0] = new_node->child[1] = NULL;
-    new_node->value.second = _value.second;
-    new_node->value.first = _value.first;
+    new_node->key = _key;
+    new_node->value = _value;
     return new_node;
 }
 
-pair_t2 *map_get(map *_map, pair_t1 _key){
+map_t2 *map_get(map *_map, map_t1 _key){
     map_node *_iter = _map->root;
     while(_iter != NULL){
-        if( _map->cmpr(_iter->value.first, _key) == 0 ){
-            return &(_iter->value.second);
-        }else if(_map->cmpr(_iter->value.first, _key) > 0){
+        if( _map->cmpr(_iter->key, _key) == 0 ){
+            return &(_iter->value);
+        }else if(_map->cmpr(_iter->key, _key) > 0){
             _iter = _iter->child[1];
         }else{
             _iter = _iter->child[0];
         }
     }
-    return _map_insert_node(_map, pair_make(_key, 0));
+    return _map_insert_node(_map, _key, 0);
 }
 
-pair_t2 *_map_insert_node(map *_map, pair _value){
+map_t2 *_map_insert_node(map *_map, map_t1 _key, map_t2 _value){
     map_node *stk[5], *ptr, *new_node, *x, *y;
     int dir[5], ht = 0, index;
 
     ptr = _map->root;
 
     if(!_map->root){
-        _map->root = _map_create_node(_value);
-        return &(_map->root->value.second);
+        _map->root = _map_create_node(_key, _value);
+        return &(_map->root->value);
     }
 
     stk[mod(ht)] = _map->root;
     dir[mod(ht++)] = 0;
     while (ptr != NULL){
         // 0: left, 1: right
-        index = _map->cmpr(ptr->value.first, _value.first) > 0 ? 1 : 0;
+        index = _map->cmpr(ptr->key, _key) > 0 ? 1 : 0;
         stk[mod(ht)] = ptr;
         ptr = ptr->child[index];
         dir[mod(ht++)] = index;
     }
-    stk[mod(ht-1)]->child[index] = new_node = _map_create_node(_value);
+    stk[mod(ht-1)]->child[index] = new_node = _map_create_node(_key, _value);
     while((ht >= 3) && (stk[mod(ht-1)]->color == _red)){
         if(dir[mod(ht-2)] == 0){
             y = stk[mod(ht-2)]->child[1];
@@ -112,7 +112,7 @@ pair_t2 *_map_insert_node(map *_map, pair _value){
         }
     }
     _map->root->color = _black;
-    return &(new_node->value.second);
+    return &(new_node->value);
 }
 
 #undef MOD
