@@ -2,12 +2,14 @@
 #define _PAIR_H_
 
 #ifndef pair_t1
-#define pair_t1 int
-#endif // pair_t
+#define pair_t1 char*
+#endif // pair_t1
 
 #ifndef pair_t2
 #define pair_t2 int
-#endif // pair_t
+#endif // pair_t2
+
+#include "util.h"
 
 typedef struct{
     pair_t1 first;
