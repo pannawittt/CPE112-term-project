@@ -22,8 +22,9 @@ mat mat_readcsv(mat *_mat, char *_file){
     f = fopen(_file, "r");
     while(i < _mat->_row && feof(f) != 1){
         fgets(row, MAX_CHAR*100, f);
-        if(row[strlen(row)-1] == '\n'){
-            row[strlen(row)-1] = '\0';
+        int rowlen = strlen(row);
+        if(row[rowlen-1] == '\n'){
+            row[rowlen-1] = '\0';
         }
         token = strtok(row, ",");
         int j = 0;
