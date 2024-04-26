@@ -6,9 +6,8 @@ OBJS = $(patsubst src/%.c,obj/%.o,$(SRCS))
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	$(CC) $(CFLAGS) -c main.c -o main.o
 
-app : $(OBJS) main.o
+app : $(OBJS)
 	$(CC) $(CFLAGS) $^ -o app
 
 .PHONY: clean m
