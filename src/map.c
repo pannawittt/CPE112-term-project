@@ -8,7 +8,7 @@ map map_create(int (*cmpr_func)(const pair_t1, const pair_t1)){
     return new_map;
 }
 
-map_node *_map_create_node(pair _value){
+map_node* _map_create_node(pair _value){
     map_node *new_node = (map_node *)malloc(sizeof(map_node));
     new_node->color = _red;
     new_node->child[0] = new_node->child[1] = NULL;
@@ -19,14 +19,13 @@ map_node *_map_create_node(pair _value){
 
 pair_t2 *map_get(map *_map, pair_t1 _key){
     map_node *_iter = _map->root;
-    if( _map->cmpr(_iter->value.first, _key) == 0 ){
-        return &(_iter->value.second);
-    }
     while(_iter != NULL){
-        if( _map->cmpr(_iter->value.first, _key) ){
-            _iter = _iter->child[0];
-        }else{
+        if( _map->cmpr(_iter->value.first, _key) == 0 ){
+            return &(_iter->value.second);
+        }else if(_map->cmpr(_iter->value.first, _key) > 0){
             _iter = _iter->child[1];
+        }else{
+            _iter = _iter->child[0];
         }
     }
     return _map_insert_node(_map, pair_make(_key, 0));
