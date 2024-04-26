@@ -28,6 +28,7 @@ map_t2 *map_get(map *_map, map_t1 _key){
             _iter = _iter->child[0];
         }
     }
+    _map->size++;
     return _map_insert_node(_map, _key, 0);
 }
 
@@ -113,6 +114,189 @@ map_t2 *_map_insert_node(map *_map, map_t1 _key, map_t2 _value){
     }
     _map->root->color = _black;
     return &(new_node->value);
+}
+
+void map_erase(map *_map, map_t1 key){
+    map_node *stk[5], *ptr, *x, *y;
+    map_node *p, *q, *r;
+    int dir[5], ht = 0, diff, i;
+    int color;
+    
+    if (_map->size <= 0) {
+        //empty
+        return;
+    }
+    _map->size--;
+    
+    ptr = _map->root;
+    while (ptr != NULL) {
+        if ((key - ptr->key) == 0)
+        break;
+        diff = (key - ptr->key) > 0 ? 1 : 0;
+        stk[mod(ht)] = ptr;
+        dir[mod(ht++)] = diff;
+        ptr = ptr->child[diff];
+    }
+
+    if (ptr->child[1] == NULL) {
+        if ((ptr == _map->root) && (ptr->child[0] == NULL)) {
+            free(ptr);
+            _map->root = NULL;
+        } else if (ptr == _map->root) {
+            _map->root = ptr->child[0];
+            free(ptr);
+        } else {
+            stk[mod(ht - 1)]->child[dir[mod(ht - 1)]] = ptr->child[0];
+        }
+    }else {
+        x = ptr->child[1];
+        if (x->child[0] == NULL) {
+        x->child[0] = ptr->child[0];
+        color = x->color;
+        x->color = ptr->color;
+        ptr->color = color;
+        if (ptr == _map->root) {
+            _map->root = x;
+        } else {
+            stk[mod(ht - 1)]->child[dir[mod(ht - 1)]] = x;
+        }
+        dir[mod(ht)] = 1;
+        stk[mod(ht++)] = x;
+        }else {
+            i = ht++;
+            while (1) {
+                dir[mod(ht)] = 0;
+                stk[mod(ht++)] = x;
+                y = x->child[0];
+                if (!y->child[0])
+                break;
+                x = y;
+            }
+
+            dir[mod(i)] = 1;
+            stk[mod(i)] = y;
+            if (i > 0){
+                stk[mod(i - 1)]->child[dir[mod(i - 1)]] = y;
+            }
+            y->child[0] = ptr->child[0];
+            x->child[0] = y->child[1];
+            y->child[1] = ptr->child[1];
+
+            if (ptr == _map->root) {
+                _map->root = y;
+            }
+            color = y->color;
+            y->color = ptr->color;
+            ptr->color = color;
+        }
+    }
+    if (ht < 1){
+        return;
+    }
+    if (ptr->color == _black) {
+        while(1) {
+            p = stk[mod(ht - 1)]->child[dir[mod(ht - 1)]];
+            if (p && p->color == _red) {
+                p->color = _black;
+                break;
+            }
+            if (ht < 2){
+                break;
+            }
+            if(dir[mod(ht - 2)] == 0) {
+                r = stk[mod(ht - 1)]->child[1];
+                if(!r){
+                    break;
+                } 
+                if (r->color == _red) {
+                    stk[mod(ht - 1)]->color = _red;
+                    r->color = _black;
+                    stk[mod(ht - 1)]->child[1] = r->child[0];
+                    r->child[0] = stk[mod(ht - 1)];
+                    if(stk[mod(ht - 1)] == _map->root) {
+                        _map->root = r;
+                    }else {
+                        stk[mod(ht - 2)]->child[dir[mod(ht - 2)]] = r;
+                    }
+                    dir[mod(ht)] = 0;
+                    stk[mod(ht)] = stk[mod(ht - 1)];
+                    stk[mod(ht - 1)] = r;
+                    ht++;
+                    r = stk[mod(ht - 1)]->child[1];
+                }
+
+                if ((!r->child[0] || r->child[0]->color == _black) && (!r->child[1] || r->child[1]->color == _black)) {
+                    r->color = _red;
+                }else {
+                    if (!r->child[1] || r->child[1]->color == _black) {
+                        q = r->child[0];
+                        r->color = _red;
+                        q->color = _black;
+                        r->child[0] = q->child[1];
+                        q->child[1] = r;
+                        r = stk[mod(ht - 1)]->child[1] = q;
+                    }
+                    r->color = stk[mod(ht - 1)]->color;
+                    stk[mod(ht - 1)]->color = _black;
+                    r->child[1]->color = _black;
+                    stk[mod(ht - 1)]->child[1] = r->child[0];
+                    r->child[0] = stk[mod(ht - 1)];
+                    if (stk[mod(ht - 1)] == _map->root) {
+                        _map->root = r;
+                    } else {
+                        stk[mod(ht - 2)]->child[dir[mod(ht - 2)]] = r;
+                    }
+                    break;
+                }
+            } else {
+                r = stk[mod(ht - 1)]->child[0];
+                if(!r) {
+                    break;
+                }
+                if (r->color == _red) {
+                    stk[mod(ht - 1)]->color = _red;
+                    r->color = _black;
+                    stk[mod(ht - 1)]->child[0] = r->child[1];
+                    r->child[1] = stk[mod(ht - 1)];
+                    if (stk[mod(ht - 1)] == _map->root) {
+                        _map->root = r;
+                    } else {
+                        stk[mod(ht - 2)]->child[dir[mod(ht - 2)]] = r;
+                    }
+                    dir[mod(ht)] = 1;
+                    stk[mod(ht)] = stk[mod(ht - 1)];
+                    stk[mod(ht - 1)] = r;
+                    ht++;
+
+                    r = stk[mod(ht - 1)]->child[0];
+                }
+                if ((!r->child[0] || r->child[0]->color == _black) && (!r->child[1] || r->child[1]->color == _black)) {
+                    r->color = _red;
+                } else {
+                    if (!r->child[0] || r->child[0]->color == _black) {
+                        q = r->child[1];
+                        r->color = _red;
+                        q->color = _black;
+                        r->child[1] = q->child[0];
+                        q->child[0] = r;
+                        r = stk[mod(ht - 1)]->child[0] = q;
+                    }
+                    r->color = stk[mod(ht - 1)]->color;
+                    stk[mod(ht - 1)]->color = _black;
+                    r->child[0]->color = _black;
+                    stk[mod(ht - 1)]->child[0] = r->child[1];
+                    r->child[1] = stk[mod(ht - 1)];
+                    if(stk[mod(ht - 1)] == _map->root) {
+                        _map->root = r;
+                    }else {
+                        stk[mod(ht - 2)]->child[dir[mod(ht - 2)]] = r;
+                    }
+                    break;
+                }
+            }
+            ht--;
+        }
+    }
 }
 
 #undef MOD
