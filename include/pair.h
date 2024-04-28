@@ -16,6 +16,6 @@ typedef struct{
     pair_t2 second;
 }pair;
 
-pair pair_make(pair_t1 first, pair_t2 second);
+pair pair_create(pair_t1 first, pair_t2 second);
 
 #endif // pair.h
