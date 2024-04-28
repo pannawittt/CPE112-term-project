@@ -11,6 +11,11 @@ int cmp(const char *s1, const char *s2){
 	return (*(const unsigned char *)s1 - *(const unsigned char *)(s2 - 1));
 }
 
+int cmpr(const char *s1, const char *s2){
+	return minute(s1) <= minute(s2);
+}
+
+
 #define pair_t1 int
 #define pair_t2 int
 #include "pair.h"
@@ -19,13 +24,6 @@ int cmp(const char *s1, const char *s2){
 #include "matrix.h"
 
 int main(){
-	map mp = map_create(&cmp);
-	mat m = mat_create(16,6);
-	mat_readcsv(&m,"data/example.csv");
-	for(int i=0;i<16;i++){
-		for(int j=0;j<6;j++){
-			printf("%s ",mat_get(&m,i,j));
-		}
-		printf("\n");
-	}
+	mat timetable = mat_create(182, 7);
+	mat_readcsv(&timetable, "data/bus_timetable.csv");
 }
