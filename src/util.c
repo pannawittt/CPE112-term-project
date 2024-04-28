@@ -25,3 +25,7 @@ int mod(int a){
     int r = a % MOD;
     return r < 0 ? r + MOD : r;
 }
+
+int minute(const char* string){
+    return ((string[0]-'0')*10 + (string[1]-'0'))*60 + (string[2]-'0')*10 + (string[3]-'0');
+}

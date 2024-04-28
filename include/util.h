@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <assert.h>
 #include <string.h>
 
 #define max(a,b) (a > b ? a : b)
@@ -33,5 +34,6 @@ int less(const util_t first, const util_t second);
 int less_equal(const util_t first, const util_t second);
 int mmod(int first, int second);
 int mod(int value);
+int minute(const char* string);
 
 #endif // util.h
