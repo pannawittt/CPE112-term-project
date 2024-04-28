@@ -12,7 +12,10 @@ map_node* _map_create_node(map_t1 _key, map_t2 _value){
     map_node *new_node = (map_node *)malloc(sizeof(map_node));
     new_node->color = _red;
     new_node->child[0] = new_node->child[1] = NULL;
-    new_node->key = _key;
+
+    //! edit here if map_t1 is not char*
+    strcpy(new_node->key, _key);
+
     new_node->value = _value;
     return new_node;
 }

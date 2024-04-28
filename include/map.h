@@ -19,6 +19,10 @@
 #define map_t2 int
 #endif // map_t2
 
+#ifndef MAX_CHAR
+#define MAX_CHAR 250
+#endif // MAX_CHAR
+
 typedef struct map_node{
     map_t1 key;
     map_t2 value;
