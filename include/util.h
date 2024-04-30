@@ -4,36 +4,49 @@
 #define int32_t int
 #define int64_t long long
 
-#ifndef util_t
-#define util_t int
-#endif // util_t
+#include <stddef.h>
 
-#ifndef MOD
-#define MOD 1000000007
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <assert.h>
-#include <string.h>
-
+/**
+ * macro สำหรับ utility function
+ * max: ส่งกลับสูงกว่า min: ส่งกลับค่าต่ำสุด
+*/
 #define max(a,b) (a > b ? a : b)
 #define min(a,b) (a < b ? a : b)
-#define _C_VER_ printf("%d",__STDC_VERSION__)
-#define swap(x,y) do{ unsigned char swap_temp[sizeof(x) == sizeof(y) ? (signed)sizeof(x) : -1]; memcpy(swap_temp,&y,sizeof(x)); memcpy(&y,&x,sizeof(x));  memcpy(&x,swap_temp,sizeof(x));}while(0)
+
+/**
+ * macro สำหรับการ debug code
+ * define DEBUG ก่อนใช้งาน
+*/
 #ifdef DEBUG
-    #define dbg(x) fprintf(stderr,x);printf("\n");
+    #define c_version __STDC_VERSION__
+    #define dbg(x) fprintf(stderr,x);printf("\n")
+    #define test(x) printf("test %d passed!\n", x)
 #else
-    #define dbg(...) 
+    #define dbg(...)
+    #define test(...)
 #endif //DEBUG
 
-int greater(const util_t first, const util_t second);
-int greater_equal(const util_t first, const util_t second);
-int less(const util_t first, const util_t second);
-int less_equal(const util_t first, const util_t second);
-int mmod(int first, int second);
-int mod(int value);
-int minute(const char* string);
+/**
+ * ฟังก์ชั่นไว้ใช้หาค่าใน vector
+ * ใช้ vector_begin() และ vector_end()
+*/
+void** find(void** _begin, void** _end, const void* _value, size_t _sizeOfElement );
+
+/**
+ * ฟังก์ชั่นใช้สำหรับแปลง string ให้เป็น นาทีรวม 
+ * string อยู่ในรูป "HourMinute"
+ * เช่น "0320" คือ 3 ชั่วโมง 20 นาที
+ * เพราะฉะนั้นฟังก์ชั่นนี้จะส่งกลับ 200 (นาที)
+*/
+int minute(const char* _string);
+
+/**
+ * ฟังก์ชั่นสำหรับแปลงค่าเป็น void pointer
+ * เพื่อความสะดวกในการใช้กับ data structure
+ * ที่เป็น dynamic type
+*/
+void* make_int(const int _value);
+void* make_char(const char _value);
+void* make_float(const float _value);
 
 #endif // util.h

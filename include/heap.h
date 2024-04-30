@@ -1,30 +1,15 @@
 #ifndef _HEAP_H_
 #define _HEAP_H_
 
-#include "vector.h"
-#include "util.h"
+typedef struct heap *heap;
 
-#ifndef heap_t
-#define heap_t int
-#endif
+#include <stddef.h>
 
-typedef struct{
-    heap_t *array;
-    int size;
-    int capacity;
-}heap_container;
-
-typedef struct{
-    heap_container vect;
-    int (*cmpr)(const heap_t, const heap_t);
-}heap;
-
-heap heap_create(int (*cmpr_func)(const heap_t, const heap_t));
-
-void heap_push (heap *_heap, heap_t val);
-int heap_empty (const heap *_heap);
-void heapify (heap *_heap, int idx);
-void heap_pop (heap *_heap);
-heap_t heap_top (const heap *_heap);
+heap heap_create(size_t _sizeOfElement, int (*_cmprFunc)(const void*, const void*));
+void heap_push (heap _heap, void* _value);
+int heap_empty (const heap _heap);
+void heapify (heap _heap, int _index);
+void heap_pop (heap _heap);
+void* heap_top (const heap _heap);
 
 #endif
