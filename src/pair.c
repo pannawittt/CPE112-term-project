@@ -1,8 +1,20 @@
 #include "pair.h"
 
-pair pair_create(pair_t1 _first, pair_t2 _second){
-    pair new_pair;
-    new_pair.first = _first;
-    new_pair.second = _second;
+#include <stdlib.h>
+#include <stddef.h>
+
+pair
+pair_create(){
+    pair new_pair = (pair)malloc(sizeof(struct pair));
+    new_pair->first = NULL;
+    new_pair->second = NULL;
+    return new_pair;
+}
+
+pair
+pair_make(void* _first, void* _second){
+    pair new_pair = (pair)malloc(sizeof(struct pair));
+    new_pair->first = _first;
+    new_pair->second = _second;
     return new_pair;
 }

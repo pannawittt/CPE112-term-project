@@ -1,31 +1,42 @@
 #include "util.h"
 
-int greater(const util_t _first, const util_t _second){
-    return _first > _second;
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+
+void**
+find(void** _begin, void** _end, const void* _value, size_t _sizeOfElement){
+    void** _start = _begin;
+    for(;_start != _end; _start++){
+        if (memcmp(*_start, _value, _sizeOfElement) == 0){
+            return _start;
+        }
+    }
+    return _end;
 }
 
-int greater_equal(const util_t _first, const util_t _second){
-    return _first >= _second;
+int 
+minute(const char* _string){
+    return ((_string[0]-'0')*10 + (_string[1]-'0'))*60 + (_string[2]-'0')*10 + (_string[3]-'0');
 }
 
-int less(const util_t _first, const util_t _second){
-    return _first < _second;
+void*
+make_int(const int _value){
+    int *new_int = (int*)malloc(sizeof(int));
+    *new_int = _value;
+    return (void*)new_int;
 }
 
-int less_equal(const util_t _first, const util_t _second){
-    return _first <= _second;
+void*
+make_char(const char _value){
+    char *new_char = (char*)malloc(sizeof(char));
+    *new_char = _value;
+    return (void*)new_char;
 }
 
-int mmod(int a, int b){
-    int r = a % b;
-    return r < 0 ? r + b : r;
-}
-
-int mod(int a){
-    int r = a % MOD;
-    return r < 0 ? r + MOD : r;
-}
-
-int minute(const char* string){
-    return ((string[0]-'0')*10 + (string[1]-'0'))*60 + (string[2]-'0')*10 + (string[3]-'0');
+void*
+make_float(const float _value){
+    float *new_float = (float*)malloc(sizeof(float));
+    *new_float = _value;
+    return (void*)new_float;
 }

@@ -1,4 +1,8 @@
 #include "map.h"
+#include <stdlib.h>
+#include <stddef.h>
+
+int mod(int value);
 
 map map_create(int (*cmpr_func)(const map_t1, const map_t1)){
     map new_map;
@@ -302,4 +306,8 @@ void map_erase(map *_map, map_t1 key){
     }
 }
 
-#undef MOD
+int 
+mod(int a){
+    int r = a % 5;
+    return r < 0 ? r + 5 : r;
+}
