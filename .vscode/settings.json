@@ -1,5 +1,7 @@
 {
     "files.associations": {
         "utility": "c"
-    }
+    },
+    "editor.fontFamily": "'Cascadia Mono PL', 'Bai Jamjuree', 'Fira  Code'",
+    "files.encoding": "utf8"
 }
