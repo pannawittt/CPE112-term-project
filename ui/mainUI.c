@@ -37,18 +37,16 @@ void inputINT(int *INT) {
     printf("%c\t", 179);
     fflush(stdout);
     scanf("%d", INT);
-    
     // Convert integer to character
     char charValue[1000];
     sprintf(charValue, "%d", *INT);
-    
     printf("\033[A\033[K%c\t %s%*s%c\n", 179, charValue, RemainingSpace(charValue), "", 179);
 }
 
 char src[1000], dest[1000];
 int time, range;
 
-int printMenu() {
+void printBody() {
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c  %c\n", 179,218,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,191, 179);
@@ -58,10 +56,6 @@ int printMenu() {
     printf("%c                                   %c\n", 179, 179);
     printf("%c  %c  What's the nearest bus stop?  %c\n",179, 254, 179);
     inputCHAR(src);
-    /* printf("%c\t", 179);
-    fflush(stdout);
-    scanf("%s", &src);
-    printf("\033[A\033[K%c\t %s%*s%c\n", 179, src, RemainingSpace(src), "", 179);*/
     printf("%c  %c  Where're u going?             %c\n", 179, 175,179);
     inputCHAR(dest);
     printf("%c  %c  What time is it?              %c\n", 179, 232, 179);
@@ -70,7 +64,9 @@ int printMenu() {
     inputINT(&range);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
-    printf("%c > Recent bus stop u used          %c\n", 179, 179);
+    printf("%c > Recent bus stop you used        %c\n", 179, 179);
+    printf("%c                                   %c\n", 179, 179);
+    printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
@@ -82,7 +78,7 @@ int printMenu() {
 
 int main() {
     printUpperBorder();
-    printMenu();
+    printBody();
     printUnderBorder();
 
     return 0;
