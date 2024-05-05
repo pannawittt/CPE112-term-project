@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 void printUpperBorder() {
     printf("%c", 213);
@@ -8,6 +9,7 @@ void printUpperBorder() {
     printf("%c", 184);
     printf("\n");
 }
+
 void printUnderBorder() {
     printf("%c", 212);
     for (int i = 0; i < 35; i++) {
@@ -17,21 +19,58 @@ void printUnderBorder() {
     printf("\n");
 }
 
-void printMenu() {
+int RemainingSpace(char *str) {
+    int len = strlen(str);
+    int remainingSpace = 27 - len;
+
+    return remainingSpace;
+}
+
+void inputCHAR(char *CHAR) {
+    printf("%c\t", 179);
+    fflush(stdout);
+    scanf("%s", CHAR);
+    printf("\033[A\033[K%c\t %s%*s%c\n", 179, CHAR, RemainingSpace(CHAR), "", 179);
+}
+
+void inputINT(int *INT) {
+    printf("%c\t", 179);
+    fflush(stdout);
+    scanf("%d", INT);
+    
+    // Convert integer to character
+    char charValue[1000];
+    sprintf(charValue, "%d", *INT);
+    
+    printf("\033[A\033[K%c\t %s%*s%c\n", 179, charValue, RemainingSpace(charValue), "", 179);
+}
+
+char src[1000], dest[1000];
+int time, range;
+
+int printMenu() {
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
-    printf("%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %c\n", 179,218,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,191, 179);
-    printf("%c %c Personalized Bus path-finding %c %c\n", 179,179,179,179);
-    printf("%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %c\n", 179,192,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,217, 179);
+    printf("%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c  %c\n", 179,218,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,191, 179);
+    printf("%c %c Personalized Bus path-finding%c  %c\n", 179,179,179,179);
+    printf("%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c  %c\n", 179,192,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,217, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c  %c  What's the nearest bus stop?  %c\n",179, 254, 179);
-    printf("%c                                   %c\n", 179, 179);
+    inputCHAR(src);
+    /* printf("%c\t", 179);
+    fflush(stdout);
+    scanf("%s", &src);
+    printf("\033[A\033[K%c\t %s%*s%c\n", 179, src, RemainingSpace(src), "", 179);*/
     printf("%c  %c  Where're u going?             %c\n", 179, 175,179);
-    printf("%c                                   %c\n", 179, 179);
+    inputCHAR(dest);
     printf("%c  %c  What time is it?              %c\n", 179, 232, 179);
-    printf("%c                                   %c\n", 179, 179);
+    inputINT(&time);
     printf("%c  %c%c How long ur walkable range?   %c\n", 179, 168, 63, 179);
+    inputINT(&range);
+    printf("%c                                   %c\n", 179, 179);
+    printf("%c                                   %c\n", 179, 179);
+    printf("%c > Recent bus stop u used          %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
@@ -39,11 +78,6 @@ void printMenu() {
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
-    
 }
 
 int main() {
