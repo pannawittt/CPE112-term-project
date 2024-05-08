@@ -8,7 +8,7 @@ void**
 find(void** _begin, void** _end, const void* _value, size_t _sizeOfElement){
     void** _start = _begin;
     for(;_start != _end; _start++){
-        if (memcmp(*_start, _value, _sizeOfElement) == 0){
+        if(!memcmp(*_start, _value, _sizeOfElement)){
             return _start;
         }
     }
@@ -20,23 +20,46 @@ minute(const char* _string){
     return ((_string[0]-'0')*10 + (_string[1]-'0'))*60 + (_string[2]-'0')*10 + (_string[3]-'0');
 }
 
+int
+cmp(const void *_p1, const void *_p2, size_t _sizeOfElement){
+    const unsigned char *c1 = (const unsigned char*)_p1;
+    const unsigned char *c2 = (const unsigned char*)_p2;
+    while(*c1 == *c2++){
+        if(*c1++ == '\0'){
+            return 0;
+        }
+    }
+    return *c1 - *c2;
+}
+
 void*
-make_int(const int _value){
+pint(const int _value){
     int *new_int = (int*)malloc(sizeof(int));
     *new_int = _value;
     return (void*)new_int;
 }
 
 void*
-make_char(const char _value){
+pchar(const char _value){
     char *new_char = (char*)malloc(sizeof(char));
     *new_char = _value;
     return (void*)new_char;
 }
 
 void*
-make_float(const float _value){
+pfloat(const float _value){
     float *new_float = (float*)malloc(sizeof(float));
     *new_float = _value;
     return (void*)new_float;
+}
+
+void*
+pstr(const char* _value){
+    if(!_value){
+        return NULL;
+    }
+    size_t len = strlen(_value);
+    char *new_str = (char*)malloc(sizeof(char)*(len+1));
+    strcpy(new_str, _value);
+    return (void*)new_str;
 }
