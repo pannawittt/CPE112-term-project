@@ -1,12 +1,31 @@
 #include "matrix.h"
 
-#include "util.h"
+/**
+ * นำเข้า library
+*/
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
 
+/**
+ * struct mat
+*/
 struct mat{
     int row;
     int col;
     char*** data;
 };
+
+/**
+ * macro
+*/
+#define MAX_CHAR 250
+
+/**
+ * private function
+*/
+int* _getLengthCSV(const char* _file);
 
 void 
 _mat_merge(char ***arr, int l, int m, int r, int cmpind, int (*cmpfunc)(const char*, const char*)){
@@ -57,45 +76,53 @@ _mat_mergesort(char ***arr, int l, int r, int cmpind, int (*cmpr)(const char*, c
 
 mat
 mat_create(const int row_size, const int col_size){
-    mat new_mat = (mat)malloc(sizeof(mat));
+    mat new_mat = (mat)malloc(sizeof(struct mat));
     new_mat->col = col_size;
     new_mat->row = row_size;
     new_mat->data = (char***)malloc(sizeof(char**)*row_size);
     for(int i=0;i<row_size;i++){
         new_mat->data[i] = (char**)malloc(sizeof(char*)*col_size);
         for(int j=0;j<col_size;j++){
-            new_mat->data[i][j] = (char*)malloc(sizeof(char)*MAX_CHAR);
+            new_mat->data[i][j] = (char*)calloc(MAX_CHAR,sizeof(char));
         }
     }
     return new_mat;
 }
 
-void
-mat_readcsv(mat Mat,const char *file){
+mat
+mat_readcsv(const char *_file){
+    int* length = _getLengthCSV(_file);                     // รับจำนวน row และ col ของไฟล์
+
+    mat new_mat = mat_create(length[0], length[1]);
+
     FILE *f;
     char row[MAX_CHAR*100];
     char* token;
     int i = 0;
-    f = fopen(file, "r");
-    while(i < Mat->row && feof(f) != 1){
-        fgets(row, MAX_CHAR*100, f);
+    f = fopen(_file, "r");
+    if(f == NULL){
+        printf("ไม่สามารถเปิดไฟล์ได้: %s\n", _file);
+        return NULL;
+    }
+    while(fgets(row, MAX_CHAR*100, f)){
         int rowlen = strlen(row);
         if(row[rowlen-1] == '\n'){
             row[rowlen-1] = '\0';
         }
         token = strtok(row, ",");
         int j = 0;
-        while(j < Mat->col && token != NULL){
+        while(token != NULL){
             if(strcmp(token,"") == 0){
                 strcpy(token,"NULL");
             }
-            strcpy(Mat->data[i][j], token);
-            token = strtok(NULL, ",");
+            strcpy(new_mat->data[i][j], token);
             j++;
+            token = strtok(NULL, ",");
         }
         i++;
     }
     fclose(f);
+    return new_mat;
 }
 
 void
@@ -136,6 +163,7 @@ mat_print(const mat Mat){
         }
         printf("\n");
     }
+    printf("[%d rows x %d columns]\n", Mat->row, Mat->col);
 }
 
 void 
@@ -174,6 +202,7 @@ mat_delrow(mat Mat,const int row){
         free(Mat->data[Mat->row-1][j]);
     }
     free(Mat->data[Mat->row-1]);
+    Mat->row -= 1;
 }
 
 void
@@ -192,7 +221,7 @@ mat_catrow(mat Mat1, const mat Mat2){
 }
 
 mat
-mat_siftrow(const mat Mat, int (*check)(const char**)){
+mat_siftrow(const mat Mat, int (*check)(char**)){
     mat new_mat = mat_create(0, Mat->col);
     for(int i=0;i<Mat->row;i++){
         if(check(Mat->data[i])){
@@ -207,4 +236,45 @@ mat_getrow(const mat Mat, const int row){
     mat new_mat = mat_create(1, Mat->col);
     mat_cpyrow(new_mat, 0, Mat, row);
     return new_mat;
+}
+
+size_t
+mat_lenrow(const mat _mat){
+    return _mat->row;
+}
+
+size_t
+mat_lencol(const mat _mat){
+    return _mat->col;
+}
+
+/**
+ * defined function
+*/
+int* _getLengthCSV(const char* _file){
+    FILE *f;
+    char buffer[MAX_CHAR*100];
+    char* token;
+    f = fopen(_file, "r");
+    if(f == NULL){
+        printf("ไม่สามารถเปิดไฟล์ได้: %s\n", _file);
+        return NULL;
+    }
+    size_t rows=0, columns=0;
+    while(fgets(buffer, MAX_CHAR*100, f)){
+        rows++;
+        token = strtok(buffer, ",");
+        size_t temp = 1;
+        while(token != NULL){
+            token = strtok(NULL, ",");
+            temp++;
+        }
+        columns = (columns > temp ? columns : temp);
+    }
+
+    int *length = (int*)malloc(sizeof(int)*2);
+    length[0] = rows;
+    length[1] = columns;
+    fclose(f);
+    return length;
 }
