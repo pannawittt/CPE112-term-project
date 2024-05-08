@@ -1,5 +1,7 @@
 #include "stack.h"
 
+#include <stdlib.h>
+
 stack stack_create(void){
     stack new_stack;
     new_stack.size = 0;
