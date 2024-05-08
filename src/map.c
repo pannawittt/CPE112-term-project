@@ -1,145 +1,106 @@
 #include "map.h"
+
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdio.h>
+
+#define _red 1
+#define _black 0
+
+typedef struct map_node{
+    void *key;
+    void *value;
+    struct map_node *child[2];
+    int color;
+}map_node;
+
+struct map{
+    map_node *root;
+    int size;
+    int (*cmpr)(const void*, const void*);
+};
 
 int mod(int value);
+map_node* _map_create_node(void *_key, void *_value);
+void** _map_insert_node(map _map, void *_key, void *_value);
 
-map map_create(int (*cmpr_func)(const map_t1, const map_t1)){
-    map new_map;
-    new_map.root = NULL;
-    new_map.size = 0;
-    new_map.cmpr = cmpr_func;
+map
+map_create(int (*_cmprFunc)(const void*, const void*), size_t _sizeOfKey, size_t _sizeOfValue){
+    map new_map = (map)malloc(sizeof(struct map));
+    new_map->root = NULL;
+    new_map->size = 0;
+    new_map->cmpr = _cmprFunc;
     return new_map;
 }
 
-map_node* _map_create_node(map_t1 _key, map_t2 _value){
-    map_node *new_node = (map_node *)malloc(sizeof(map_node));
-    new_node->color = _red;
-    new_node->child[0] = new_node->child[1] = NULL;
-
-    //! edit here if map_t1 is not char*
-    strcpy(new_node->key, _key);
-
-    new_node->value = _value;
-    return new_node;
-}
-
-map_t2 *map_get(map *_map, map_t1 _key){
-    map_node *_iter = _map->root;
-    while(_iter != NULL){
-        if( _map->cmpr(_iter->key, _key) == 0 ){
-            return &(_iter->value);
-        }else if(_map->cmpr(_iter->key, _key) > 0){
-            _iter = _iter->child[1];
+void**
+map_get(map _map, void* _key){
+    map_node *iter = _map->root;
+    while(iter != NULL){
+        if( _map->cmpr(iter->key, _key) == 0 ){
+            return &(iter->value);
+        }else if(_map->cmpr(iter->key, _key) > 0){
+            iter = iter->child[1];
         }else{
-            _iter = _iter->child[0];
+            iter = iter->child[0];
         }
     }
     _map->size++;
-    return _map_insert_node(_map, _key, 0);
+    return _map_insert_node(_map, _key, NULL);
 }
 
-map_t2 *_map_insert_node(map *_map, map_t1 _key, map_t2 _value){
-    map_node *stk[5], *ptr, *new_node, *x, *y;
-    int dir[5], ht = 0, index;
-
-    ptr = _map->root;
-
-    if(!_map->root){
-        _map->root = _map_create_node(_key, _value);
-        return &(_map->root->value);
-    }
-
-    stk[mod(ht)] = _map->root;
-    dir[mod(ht++)] = 0;
-    while (ptr != NULL){
-        // 0: left, 1: right
-        index = _map->cmpr(ptr->key, _key) > 0 ? 1 : 0;
-        stk[mod(ht)] = ptr;
-        ptr = ptr->child[index];
-        dir[mod(ht++)] = index;
-    }
-    stk[mod(ht-1)]->child[index] = new_node = _map_create_node(_key, _value);
-    while((ht >= 3) && (stk[mod(ht-1)]->color == _red)){
-        if(dir[mod(ht-2)] == 0){
-            y = stk[mod(ht-2)]->child[1];
-            if(y != NULL && y->color == _red){
-                stk[mod(ht-2)]->color = _red;
-                stk[mod(ht-1)]->color = y->color = _black;
-                ht -= 2;
-            }else{
-                if(dir[mod(ht-1)] == 0) {
-                    y = stk[mod(ht-1)];
-                }else {
-                    x = stk[mod(ht-1)];
-                    y = x->child[1];
-                    x->child[1] = y->child[0];
-                    y->child[0] = x;
-                    stk[mod(ht-2)]->child[0] = y;
-                }
-                x = stk[mod(ht-2)];
-                x->color = _red;
-                y->color = _black;
-                x->child[0] = y->child[1];
-                y->child[1] = x;
-                if(x == _map->root){
-                    _map->root = y;
-                }else {
-                    stk[mod(ht-3)]->child[dir[mod(ht-3)]] = y;
-                }
-                break;
-            }
-        }else {
-            y = stk[mod(ht-2)]->child[0];
-            if ((y != NULL) && (y->color == _red)) {
-                stk[mod(ht-2)]->color = _red;
-                stk[mod(ht-1)]->color = y->color = _black;
-                ht -= 2;
-            }else {
-                if (dir[mod(ht-1)] == 1){
-                    y = stk[mod(ht-1)];
-                }else {
-                    x = stk[mod(ht-1)];
-                    y = x->child[0];
-                    x->child[0] = y->child[1];
-                    y->child[1] = x;
-                    stk[mod(ht-2)]->child[1] = y;
-                }
-                x = stk[mod(ht-2)];
-                y->color = _black;
-                x->color = _red;
-                x->child[1] = y->child[0];
-                y->child[0] = x;
-                if(x == _map->root){
-                    _map->root = y; 
-                }else {
-                    stk[mod(ht-3)]->child[dir[mod(ht-3)]] = y;
-                }
-                break;
-            }
+void*
+map_at(map _map, void* _key){
+    map_node *iter = _map->root;
+    while(iter != NULL){
+        if( _map->cmpr(iter->key, _key) == 0 ){
+            return iter->value;
+        }else if(_map->cmpr(iter->key, _key) > 0){
+            iter = iter->child[1];
+        }else{
+            iter = iter->child[0];
         }
     }
-    _map->root->color = _black;
-    return &(new_node->value);
+    _map->size++;
+    return *_map_insert_node(_map, _key, NULL);
 }
 
-void map_erase(map *_map, map_t1 key){
+void
+map_set(map _map, void* _key, void* _value){
+    map_node *iter = _map->root;
+    while(iter != NULL){
+        if( _map->cmpr(iter->key, _key) == 0 ){
+            iter->value = _value;
+            return;
+        }else if(_map->cmpr(iter->key, _key) > 0){
+            iter = iter->child[1];
+        }else{
+            iter = iter->child[0];
+        }
+    }
+    _map->size++;
+    _map_insert_node(_map, _key, _value);
+}
+
+void
+map_erase(map _map, void *key){
     map_node *stk[5], *ptr, *x, *y;
     map_node *p, *q, *r;
     int dir[5], ht = 0, diff, i;
     int color;
     
     if (_map->size <= 0) {
-        //empty
         return;
     }
     _map->size--;
     
     ptr = _map->root;
     while (ptr != NULL) {
-        if ((key - ptr->key) == 0)
-        break;
-        diff = (key - ptr->key) > 0 ? 1 : 0;
+        if (_map->cmpr(key, ptr->key) == 0){
+            break;
+        }
+        diff = _map->cmpr(key, ptr->key) > 0 ? 1 : 0;
         stk[mod(ht)] = ptr;
         dir[mod(ht++)] = diff;
         ptr = ptr->child[diff];
@@ -306,8 +267,128 @@ void map_erase(map *_map, map_t1 key){
     }
 }
 
+size_t
+map_size(map _map){
+    return _map->size;
+}
+
+void**
+map_find(map _map, void* _key){
+    map_node *iter = _map->root;
+    while(iter != NULL){
+        if( _map->cmpr(iter->key, _key) == 0 ){
+            return &(iter->value);
+        }else if(_map->cmpr(iter->key, _key) > 0){
+            iter = iter->child[1];
+        }else{
+            iter = iter->child[0];
+        }
+    }
+    return NULL;
+}
+
+/**
+ * ฟังก์ชั่นใช้ในไฟล์นี้เท่านั้น
+*/
 int 
 mod(int a){
     int r = a % 5;
     return r < 0 ? r + 5 : r;
 }
+
+map_node*
+_map_create_node(void *_key, void *_value){
+    map_node *new_node = (map_node *)malloc(sizeof(map_node));
+    new_node->color = _red;
+    new_node->child[0] = new_node->child[1] = NULL;
+    new_node->key = _key;
+    new_node->value = _value;
+    return new_node;
+}
+
+void**
+_map_insert_node(map _map, void *_key, void *_value){
+    map_node *stk[5], *ptr, *new_node, *x, *y;
+    int dir[5], ht = 0, index;
+    ptr = _map->root;
+
+    if(!_map->root){
+        _map->root = _map_create_node(_key, _value);
+        return &(_map->root->value);
+    }
+
+    stk[mod(ht)] = _map->root;
+    dir[mod(ht++)] = 0;
+    while (ptr != NULL){
+        // 0: left, 1: right
+        index = _map->cmpr(ptr->key, _key) > 0 ? 1 : 0;
+        stk[mod(ht)] = ptr;
+        ptr = ptr->child[index];
+        dir[mod(ht++)] = index;
+    }
+    stk[mod(ht-1)]->child[index] = new_node = _map_create_node(_key, _value);
+    while((ht >= 3) && (stk[mod(ht-1)]->color == _red)){
+        if(dir[mod(ht-2)] == 0){
+            y = stk[mod(ht-2)]->child[1];
+            if(y != NULL && y->color == _red){
+                stk[mod(ht-2)]->color = _red;
+                stk[mod(ht-1)]->color = y->color = _black;
+                ht -= 2;
+            }else{
+                if(dir[mod(ht-1)] == 0) {
+                    y = stk[mod(ht-1)];
+                }else {
+                    x = stk[mod(ht-1)];
+                    y = x->child[1];
+                    x->child[1] = y->child[0];
+                    y->child[0] = x;
+                    stk[mod(ht-2)]->child[0] = y;
+                }
+                x = stk[mod(ht-2)];
+                x->color = _red;
+                y->color = _black;
+                x->child[0] = y->child[1];
+                y->child[1] = x;
+                if(x == _map->root){
+                    _map->root = y;
+                }else {
+                    stk[mod(ht-3)]->child[dir[mod(ht-3)]] = y;
+                }
+                break;
+            }
+        }else {
+            y = stk[mod(ht-2)]->child[0];
+            if ((y != NULL) && (y->color == _red)) {
+                stk[mod(ht-2)]->color = _red;
+                stk[mod(ht-1)]->color = y->color = _black;
+                ht -= 2;
+            }else {
+                if (dir[mod(ht-1)] == 1){
+                    y = stk[mod(ht-1)];
+                }else {
+                    x = stk[mod(ht-1)];
+                    y = x->child[0];
+                    x->child[0] = y->child[1];
+                    y->child[1] = x;
+                    stk[mod(ht-2)]->child[1] = y;
+                }
+                x = stk[mod(ht-2)];
+                y->color = _black;
+                x->color = _red;
+                x->child[1] = y->child[0];
+                y->child[0] = x;
+                if(x == _map->root){
+                    _map->root = y; 
+                }else {
+                    stk[mod(ht-3)]->child[dir[mod(ht-3)]] = y;
+                }
+                break;
+            }
+        }
+    }
+    _map->root->color = _black;
+    return &(new_node->value);
+}
+
+#undef _red
+#undef _black
