@@ -90,8 +90,6 @@ void printBody() {
     adaptiveWindowsLastChild(recentBusStop[4]);
     printf("%c                                   %c\n", 179, 179);
     printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
-    printf("%c                                   %c\n", 179, 179);
 }
 
 int main() {
