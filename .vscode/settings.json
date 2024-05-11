@@ -2,6 +2,8 @@
     "files.associations": {
         "utility": "c"
     },
-    "editor.fontFamily": "'Cascadia Mono PL', 'Bai Jamjuree', 'Fira  Code'",
-    "files.encoding": "utf8"
+    "editor.fontFamily": "'Fira Code Regular', 'Cascadia Code', 'Bai Jamjuree', 'Fira  Code'",
+    "files.encoding": "utf8",
+    "terminal.integrated.fontFamily": "'Waffle Regular Regular', Consolas, 'Courier New', monospace",
+    "terminal.integrated.fontSize": 18,
 }
