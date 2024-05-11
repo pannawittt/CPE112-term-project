@@ -18,20 +18,20 @@
 /**
  * private struct & function
 */
-typedef struct path{
-    int weight;
-    int destination;
-    char *bus;
-}path;
-
-static path *path_create(int _weight, char *_bus, int _destination);
+static path path_create(int _weight, char *_bus, int _destination);
 
 /**
- * struct graph
+ * struct graph & path
 */
 struct graph{
     int nodeSize;
     vector* adjList;
+};
+
+struct path{
+    int weight;
+    int destination;
+    char *bus;
 };
 
 graph
@@ -47,19 +47,24 @@ graph_create(const int _nodeSize){
 
 void
 graph_addedge(graph _graph, const int _sourceVertex, const int _destinaionVertex, int _weight, char *_busNo){
-    path *new_path = path_create(_weight, _busNo, _destinaionVertex);
+    path new_path = path_create(_weight, _busNo, _destinaionVertex);
     vector_push(_graph->adjList[_sourceVertex], new_path);
+}
+
+vector
+graph_get(const graph _graph, const int _vertex){
+    return _graph->adjList[_vertex];
 }
 
 /**
  * private definition
 */
-static path*
+static path
 path_create(int _weight, char *_bus, const int _destination){
-    path *new_path = (path*)malloc(sizeof(struct path));
+    path new_path = (path)malloc(sizeof(struct path));
     new_path->weight = _weight;
     new_path->destination = _destination;
-    new_path->bus = (char*)malloc(sizeof(char)*250);
+    new_path->bus = (char)malloc(sizeof(char)*250);
     memcpy(new_path->bus, _bus, sizeof(char)*250);
     return new_path;
 }
