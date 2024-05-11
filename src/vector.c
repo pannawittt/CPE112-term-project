@@ -26,6 +26,9 @@ struct vector{
 */
 static void update_capacity(vector _vector, size_t _newCapacity);
 
+static void **olds;
+static vector save = NULL;
+
 vector 
 vector_create(size_t _sizeOfElement){
     vector new_vector = (vector)malloc(sizeof(struct vector));
@@ -52,6 +55,15 @@ vector_pop(vector _vector){
     }
 }
 
+void
+vector_swap(vector _vector, size_t _first, size_t _second){
+    void* temp = malloc(_vector->SOE);
+    memcpy(temp, vector_at(_vector, _first), _vector->SOE);
+    memcpy(vector_at(_vector, _first), vector_at(_vector, _second), _vector->SOE);
+    memcpy(vector_at(_vector, _second), temp, _vector->SOE);
+    free(temp);
+}
+
 size_t
 vector_size(const vector _vector){
     return _vector->size;
@@ -68,6 +80,23 @@ vector_at(const vector _vector, int _index){
         return _vector->array[_index];
     }
     return *vector_end(_vector);
+}
+
+void*
+vector_trav(const vector _vector){
+    if(_vector == save){
+        olds++;
+        if(olds != vector_end(_vector)){
+            return *olds;
+        }else{
+            save = NULL;
+            return NULL;
+        }
+    }else{
+        save = _vector;
+        olds = vector_begin(_vector);
+        return *olds;
+    }
 }
 
 void**
