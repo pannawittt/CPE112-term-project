@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdio.h>
 
 /** library เพิ่มเติม
  * vector.h ใช้เป็น data structure ในการเก็บค่าใน heap
@@ -30,7 +31,7 @@ void swap(void* _first, void* _second, size_t _sizeOfElement);
 heap
 heap_create(size_t _sizeOfElement, int (*_cmprFunc)(const void*, const void*)){
     heap new_heap = (heap)malloc(sizeof(struct heap));
-    new_heap->container = vector_create();
+    new_heap->container = vector_create(_sizeOfElement);
     new_heap->cmpr = _cmprFunc;
     new_heap->elementSize = _sizeOfElement;
     return new_heap;
@@ -41,9 +42,14 @@ heap_push (heap _heap, void* _value){
     vector_push(_heap->container, _value);
     size_t idx = vector_size(_heap->container)-1;
     while(idx > 0 && _heap->cmpr(vector_at(_heap->container, (idx-1)/2), vector_at(_heap->container, idx))){
-        swap(vector_at(_heap->container, (idx-1)/2), vector_at(_heap->container, idx), _heap->elementSize);
+        vector_swap(_heap->container, (idx-1)/2, idx);
         idx = (idx-1)/2;
     }
+}
+
+size_t
+heap_size(const heap _heap){
+    return vector_size(_heap->container);
 }
 
 int 
@@ -70,8 +76,9 @@ heapify (heap _heap, int _idx){
 
 void
 heap_pop (heap _heap){
-    if(heap_empty(_heap)){
-        swap(vector_at(_heap->container, 0), vector_at(_heap->container, vector_size(_heap->container)-1), _heap->elementSize);
+    if(!heap_empty(_heap)){
+        vector_swap(_heap->container, 0, vector_size(_heap->container)-1);
+        vector_pop(_heap->container);
         heapify(_heap, 0);
     }
 }
