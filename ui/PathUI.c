@@ -44,7 +44,7 @@ void printDestination(int Time) {
 
 void printStartEndTime(int startTime, int endTime) {
     printf("%c %c start time  %c%c  end time        %c\n", 179, 232, 195, 318, 179);
-    printf("%c     %d             %d         %c\n", 179,startTime,endTime,179);
+    printf("%c     %d            %d          %c\n", 179,startTime,endTime,179);
 }
 
 int main() {
