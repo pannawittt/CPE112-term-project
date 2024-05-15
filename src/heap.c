@@ -37,6 +37,11 @@ heap_create(size_t _sizeOfElement, int (*_cmprFunc)(const void*, const void*)){
     return new_heap;
 }
 
+void*
+heap_trav(heap _heap){
+    return vector_trav(_heap->container);
+}
+
 void
 heap_push (heap _heap, void* _value){
     vector_push(_heap->container, _value);
@@ -69,7 +74,7 @@ heapify (heap _heap, int _idx){
         largest = right;
     }
     if(largest != _idx){
-        swap(vector_at(_heap->container, _idx), vector_at(_heap->container, largest), _heap->elementSize);
+        vector_swap(_heap->container, _idx, largest);
         heapify(_heap, largest);
     }
 }

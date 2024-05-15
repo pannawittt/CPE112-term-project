@@ -32,6 +32,12 @@ cmp(const void *_p1, const void *_p2, size_t _sizeOfElement){
     return *c1 - *c2;
 }
 
+char* str(char* _string){
+    char* new_string = (char*)calloc(250, sizeof(char));
+    strcpy(new_string, _string);
+    return new_string;
+}
+
 void*
 pint(const int _value){
     int *new_int = (int*)malloc(sizeof(int));

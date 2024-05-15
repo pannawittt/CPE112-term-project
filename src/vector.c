@@ -51,6 +51,7 @@ vector_push(vector _vector, void* _element){
 void 
 vector_pop(vector _vector){
     if(_vector->size > 0){
+        //free(_vector->array[_vector->size-1]);
         _vector->size--;
     }
 }
@@ -95,7 +96,11 @@ vector_trav(const vector _vector){
     }else{
         save = _vector;
         olds = vector_begin(_vector);
-        return *olds;
+        if(olds != vector_end(_vector)){ 
+            return *olds;
+        }else{
+            return NULL;
+        }
     }
 }
 
@@ -118,9 +123,19 @@ vector_end(const vector _vector){
 }
 
 void**
-vector_find(const vector _vector, void* _value){
+vector_find(const vector _vector, void* _value, int (*cmpr)(const void*, const void*)){
     for(int i=0;i<_vector->size;i++){
-        if(!memcmp(_vector->array[i], _value, _vector->SOE)){
+        if(!cmpr(_vector->array[i], _value)){
+            return vector_get(_vector, i);
+        }
+    }
+    return vector_end(_vector);
+}
+
+void**
+vector_strfind(const vector _vector, void* _value){
+    for(int i=0;i<_vector->size;i++){
+        if(!strcmp(_vector->array[i], _value)){
             return vector_get(_vector, i);
         }
     }

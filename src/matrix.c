@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include "util.h"
 
 /**
  * struct mat
@@ -84,6 +85,7 @@ mat_create(const int row_size, const int col_size){
         new_mat->data[i] = (char**)malloc(sizeof(char*)*col_size);
         for(int j=0;j<col_size;j++){
             new_mat->data[i][j] = (char*)calloc(MAX_CHAR,sizeof(char));
+            assert(new_mat->data[i][j] != NULL);
         }
     }
     return new_mat;
@@ -96,7 +98,7 @@ mat_readcsv(const char *_file){
     mat new_mat = mat_create(length[0], length[1]);
 
     FILE *f;
-    char row[MAX_CHAR*100];
+    char row[MAX_CHAR*200];
     char* token;
     int i = 0;
     f = fopen(_file, "r");
@@ -115,7 +117,7 @@ mat_readcsv(const char *_file){
             if(strcmp(token,"") == 0){
                 strcpy(token,"NULL");
             }
-            strcpy(new_mat->data[i][j], token);
+            memcpy(new_mat->data[i][j], str(token), 250);
             j++;
             token = strtok(NULL, ",");
         }

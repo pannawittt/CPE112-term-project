@@ -12,5 +12,6 @@ size_t heap_size(const heap _heap);
 void heapify(heap _heap, int _index);
 void heap_pop(heap _heap);
 void* heap_top(const heap _heap);
+void* heap_trav(const heap _heap);
 
 #endif
