@@ -2,6 +2,7 @@
 #define DEBUG
 #define MAXCHAR (sizeof(char)*250)
 typedef struct edge *edge;
+typedef struct item *item;
 
 /* include library */
 #include <stdio.h>
@@ -28,6 +29,12 @@ struct edge{
 	size_t vertex;
 	char* busNo;
 };
+struct item{
+	int distance;
+	int fromVertex;
+	int toVertex;
+	char* busNo;
+};
 
 /* function */
 void runMain();
@@ -36,12 +43,13 @@ int strCmpr(const void* a, const void* b); 		// ฟังก์ชั่นเ�
 int timeSift(char **a); 						// กรอง row ใน timetable
 int itemCmpr(const void* a, const void* b);
 edge edge_create(int weight, size_t vertex, char* busNo);
+item item_create(int distance, int fromVertex, int toVertex, char* busNo);
 
 /* main function */
 int main(int argc, char **argv){
 	DBG = fopen("debug.txt","w");
+	busPrior = vector_create(MAXCHAR);
 	if(argc == 1){
-		busPrior = vector_create(MAXCHAR);
 		desktopIn(userTime, userSrc, userDest, &walkLength, busPrior);
 		runMain();
 		desktopEnd();
@@ -92,116 +100,151 @@ void runMain(void){
 	/* plot graph */
 	nodeNum = vector_size(signMap);
 	vector *G = (vector*)malloc(sizeof(vector)*nodeNum);                      // สร้าง graph มาเก็บเส้นทางเดินรถ
-	for(int i=0;i<nodeNum;i++){
+	for(size_t i=0;i<nodeNum;i++){
 		G[i] = vector_create(sizeof(struct edge));
 	}
 	for(size_t i=0;i<mat_lenrow(ntimetable);i++){
 		size_t src, dest;
-		char *busNo, *busStop, *prevStop;
-		int direction;
-		char fileName[MAXCHAR];
-		mat route;
+		char *busNo, *busStop, *prevStop, *temp;
+		int direction, time;
+		char fileName[MAXCHAR], buffer[MAXCHAR];
+		mat route, weight;
 		
 		busNo = mat_get(ntimetable, i, 0);
 		direction = (strcmp(mat_get(ntimetable, i, 5), "ไป") ? 1 : 0);
-
 		snprintf(fileName, MAXCHAR, "data/routes/route_%s.csv", busNo);
-		route = mat_readcsv(fileName); 
+		route = mat_readcsv(fileName);
 		mat_delrow(route, 0);
 
+		snprintf(buffer, MAXCHAR,"data/weights/%s_%s.csv", busNo, (direction ? "out" : "in"));
+		weight = mat_readcsv(buffer);
 		prevStop = mat_get(route, direction, 0);
 		for(size_t sign=1;sign<mat_lencol(route);sign++){
 			busStop = mat_get(route, direction, sign);
 			if(!strcmp(busStop,"blankjaa"))break;
-
+	
+			time = atoi(mat_get(weight, sign, 2));
 			src = vector_find(signMap, prevStop, &strCmpr) - vector_begin(signMap);                      // หา ID ของป้ายก่อนหน้า
 			dest = vector_find(signMap, busStop, &strCmpr) - vector_begin(signMap);                      // หา ID ของป้ายปัจจุบัน
-			vector_push(G[src], edge_create(1, dest, busNo));
+			vector_push(G[src], edge_create(time, dest, busNo));
 			prevStop = busStop;															
 		}
-		mat_erase(route);				
+		mat_erase(route);
+		mat_erase(weight);		
 	}
+	mat walkRoute = mat_readcsv("data/weights/walk.csv");
+	for(size_t i=1;i<mat_lenrow(walkRoute);i++){
+		char *from, *to;
+		int time;
+		size_t idxFrom, idxTo;
+
+		from = mat_get(walkRoute, i, 0);
+		to = mat_get(walkRoute, i, 1);
+		time = atoi(mat_get(walkRoute, i, 2));
+		idxFrom = vector_find(signMap, from, &strCmpr) - vector_begin(signMap);
+		idxTo = vector_find(signMap, to, &strCmpr) - vector_begin(signMap);
+
+		vector_push(G[idxFrom], edge_create(time, idxTo, str("Walk")));
+	}
+	mat_erase(walkRoute);
 
 	/* priority queue */
 	{
 		heap pq;
 		size_t src, dest;
-		int valid, *dist, *idTrack;
+		int valid, *dist, *idTrack, *visited;
 		char** busTrack;
-		edge now, next, top;
+		item now, top;
+		edge next;
 
 		dist = (int*)malloc(sizeof(int)*nodeNum);
 		idTrack = (int*)malloc(sizeof(int)*nodeNum);
+		visited = (int*)malloc(sizeof(int)*nodeNum);
 		busTrack = (char**)malloc(sizeof(char*)*nodeNum);
-		for(int i=0;i<nodeNum;i++){
-			busTrack[i] = (char*)malloc(MAXCHAR);
-		}
 		valid = 1;
-		pq = heap_create(sizeof(struct edge), &itemCmpr);
+		pq = heap_create(sizeof(struct item), &itemCmpr);
 		src = vector_find(signMap, userSrc, &strCmpr) - vector_begin(signMap);
 		dest = vector_find(signMap, userDest, &strCmpr) - vector_begin(signMap);
 		
 		if(src >= nodeNum){
-			desktopPrint("not found source");
+			desktopPrint("not found source", 32);
 			valid = 0;
 		}
 		if(dest >= nodeNum){
-			desktopPrint("not found destination");
+			desktopPrint("not found destination", 32);
 			valid = 0;
 		}
 
 		for(int i=0;i<nodeNum;i++){
 			dist[i] = 999999;
 			idTrack[i] = -1;
+			busTrack[i] = (char*)malloc(MAXCHAR);
+			visited[i] = 0;
 		}
 		if(!valid){
 			return;	
 		}
-
 		dist[src] = 0;
-		heap_push(pq, edge_create(0, src, "none"));
-		//printf("src: %d dest: %d\n", src, dest);
+		heap_push(pq, item_create(0, -1, src, str("Walk")));
 		while(!heap_empty(pq)){
+			top = (item)heap_top(pq);
+			now = item_create(top->distance, top->fromVertex, top->toVertex, top->busNo);
+			
+			heap_pop(pq);
+			if(visited[now->toVertex]){
+				continue;
+			}
 
-			edge top = (edge)heap_top(pq);
-			now = edge_create(top->weight, top->vertex, top->busNo);
-			strncpy(busTrack[now->vertex], now->busNo, MAXCHAR);
-	
-			if(strcmp(vector_at(signMap, now->vertex), userDest) == 0){
+			visited[now->toVertex] = 1;
+			dist[now->toVertex] = now->distance;
+			strncpy(busTrack[now->toVertex], now->busNo, MAXCHAR);
+			idTrack[now->toVertex] = now->fromVertex;
+
+			if(now->toVertex == dest){
 				break;
 			}
-			heap_pop(pq);
-
-			while(next = (edge)vector_trav(G[now->vertex])){
-				if(dist[next->vertex] > dist[now->vertex] + next->weight){	
-					dist[next->vertex] = dist[now->vertex] + next->weight;
-					idTrack[next->vertex] = now->vertex;
-					heap_push(pq, edge_create(dist[next->vertex], next->vertex, next->busNo));
-					edge e;
-					while(e = heap_trav(pq)){
-						fprintf(DBG, "%s ", e->busNo);
-					}
-					fprintf(DBG, "\n");
+			while(next = (edge)vector_trav(G[now->toVertex])){
+				if(!visited[next->vertex]){
+					size_t newDist = next->weight + dist[now->toVertex];
+					heap_push(pq, item_create(newDist, now->toVertex, next->vertex, next->busNo));
 				}
 			}
 
 		}
 
-		//output: dist[dest]
-		snprintf(strBuffer, MAXCHAR, "distance : %d", dist[dest]);
-		desktopPrint(strBuffer);
-		size_t iter = dest;
-		while(idTrack[iter] != -1){
-			snprintf(strBuffer, MAXCHAR, "bus : %s", busTrack[iter]);
-			desktopPrint(strBuffer);
-			iter = idTrack[iter];
+		/* สรุปผล */
+		vector result = vector_create(MAXCHAR);
+		snprintf(strBuffer, MAXCHAR, "time : %d", dist[dest]);
+		desktopPrint(strBuffer, 32);
+		size_t iter = dest, nextIter;
+		char* prev = NULL;
+		int firstTime = 1;
+		while(iter != -1){ //busTrack[iter]
+			nextIter = idTrack[iter];
+			if(!prev || strcmp(prev, busTrack[iter])){
+				if(firstTime){
+					snprintf(strBuffer, MAXCHAR, "└ %s → %s",  busTrack[iter], vector_at(signMap, iter));
+					firstTime ^= 1;
+				}else{
+					snprintf(strBuffer, MAXCHAR, "├ %s → %s",  busTrack[iter], vector_at(signMap, iter));
+				}
+				vector_push(result, strBuffer);
+			}
+			prev = busTrack[iter];
+			iter = nextIter;
+		}
+		char* path;
+		vector_reverse(result);
+		while(path = vector_trav(result)){
+			desktopPrint(path, 36);
 		}
 	}
+
 }
 
 void runTest(void){
-	heap h = heap_create(sizeof(edge), &itemCmpr);
-	
+	mat test = mat_readcsv("data/weights/1_in.csv");
+	printf("%s\n", mat_get(test, 1, 1));
 }
 
 int strCmpr(const void* a, const void* b){
@@ -209,9 +252,9 @@ int strCmpr(const void* a, const void* b){
 }
 
 int itemCmpr(const void* a, const void* b){
-	edge A = (edge)a;
-	edge B = (edge)b;
-	if(A->weight == B->weight){
+	item A = (item)a;
+	item B = (item)b;
+	if(A->distance == B->distance){
 		size_t idxA = vector_find(busPrior, A->busNo, &strCmpr) - vector_begin(busPrior);
 		size_t idxB = vector_find(busPrior, B->busNo, &strCmpr) - vector_begin(busPrior);
 		size_t end = vector_end(busPrior) - vector_begin(busPrior);
@@ -223,7 +266,7 @@ int itemCmpr(const void* a, const void* b){
 		}
 		return idxA > idxB;
 	}
-	return A->weight > B->weight;
+	return A->distance > B->distance;
 }
 
 edge edge_create(int weight, size_t vertex, char* busNo){
@@ -231,13 +274,23 @@ edge edge_create(int weight, size_t vertex, char* busNo){
 	new_edge->weight = weight;
 	new_edge->vertex = vertex;
 	new_edge->busNo = (char*)malloc(MAXCHAR);
-	if(busNo){	
+	if(busNo){
 		memcpy(new_edge->busNo, busNo, MAXCHAR);
-	}else{
-		//strcpy(new_edge->busNo, "NULL");
 	}
 	return new_edge;
-};
+}
+
+item item_create(int distance, int fromVertex, int toVertex, char* busNo){
+	item new_item = (item)malloc(sizeof(struct item));
+	new_item->distance = distance;
+	new_item->fromVertex = fromVertex;
+	new_item->toVertex = toVertex;
+	new_item->busNo = (char*)malloc(MAXCHAR);
+	if(busNo){
+		memcpy(new_item->busNo, busNo, MAXCHAR);
+	}
+	return new_item;
+}
 
 /* fn เช็คว่าอยู่ในช่วงที่รถวิ่งไหม */
 int timeSift(char **a){
