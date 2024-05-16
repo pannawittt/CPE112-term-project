@@ -38,8 +38,7 @@ void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, v
     intIn(walkLength);
     printf("│                                   │\n");
     printf("│                                   │\n");
-    printf("│ > Recent bus stop you used        │\n");
-    char buffer[250];
+    printf("│ > Recent bus you used             │\n");
     adaptiveWindowsTree(userBus);
     adaptiveWindowsTree(userBus);
     adaptiveWindowsTree(userBus);
@@ -49,8 +48,8 @@ void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, v
     printf("│                                   │\n");
 }
 
-void desktopPrint(char* _str){
-    printf("│     %s%*s│\n", _str, remainSpace(_str, 30), "");
+void desktopPrint(char* _str, size_t _space){
+    printf("│   %s%*s│\n", _str, remainSpace(_str, _space), "");
 }
 
 void desktopEnd(){
@@ -101,6 +100,11 @@ void strIn(char *_buffer){
 
 int remainSpace(char *_str, int _space) {
     int len = strlen(_str);
+    if(len > _space-1){
+        len = _space-1;
+        _str[_space-1] = '\0';
+        _str[_space-2] = _str[_space-3] = _str[_space-4] = '.';
+    }
     int remainingSpace = _space - len;
 
     return remainingSpace;
