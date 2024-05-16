@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <ctype.h>
 
 void**
 find(void** _begin, void** _end, const void* _value, size_t _sizeOfElement){
@@ -32,10 +33,19 @@ cmp(const void *_p1, const void *_p2, size_t _sizeOfElement){
     return *c1 - *c2;
 }
 
-char* str(char* _string){
+char*
+str(char* _string){
     char* new_string = (char*)calloc(250, sizeof(char));
     strcpy(new_string, _string);
     return new_string;
+}
+
+char*
+toLower(char* s){
+    for(char *p=s; *p; p++){
+        *p=tolower(*p);
+    }
+    return s;
 }
 
 void*

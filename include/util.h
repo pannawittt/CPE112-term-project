@@ -48,6 +48,7 @@ int minute(const char* _string);
 int cmp (const void *_p1, const void *_p2, size_t _sizeOfElement);
 
 char* str(char* _string);
+char* toLower(char* _string);
 
 /**
  * ฟังก์ชั่นสำหรับแปลงค่าเป็น void pointer
