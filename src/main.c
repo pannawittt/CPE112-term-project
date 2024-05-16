@@ -16,14 +16,22 @@ typedef struct item *item;
 #include "desktop.h"
 
 /* global variable & struct */
-char userTime[10];
-char userSrc[MAXCHAR];
-char userDest[MAXCHAR];
-char userCo[MAXCHAR];
-char strBuffer[MAXCHAR];
-int walkLength = 0;
-vector busPrior;
-FILE *DBG;
+char userTime[10];			// เวลา จากผู้ใช้
+char userSrc[MAXCHAR];		// ป้ายเริ่มต้น จากผู้ใช้
+char userDest[MAXCHAR];		// ป้ายปลายทาง จากผู้ใช้
+char userCo[MAXCHAR];		// บริษัทที่ผู้ใช้ต้องการ
+char strBuffer[MAXCHAR];	// string buffer
+int walkLength = 0;			// เดินได้เท่าไหร่ (วินาที)
+vector busPrior;			// ลำดับความสำคัญของรถบัส ใช้ใน priority queue
+FILE *DBG;					// debug code
+
+/**
+ * struct edge
+ * 
+ * weight ระยะเวลา
+ * vertex โหนดปลายทาง
+ * busNo สายของรถบัส
+*/
 struct edge{
 	int weight;
 	size_t vertex;
@@ -37,14 +45,14 @@ struct item{
 };
 
 /* function */
-void runMain();
-void runTest();
-int strCmpr(const void* a, const void* b);
-int strCaseCmpr(const void* a, const void* b);
-int timeSift(char **a); 						// กรอง row ใน timetable
-int itemCmpr(const void* a, const void* b);
-edge edge_create(int weight, size_t vertex, char* busNo);
-item item_create(int distance, int fromVertex, int toVertex, char* busNo);
+void runMain(); // main
+void runTest();	// สำหรับ test code
+int strCmpr(const void* a, const void* b); 									// compare string case sensitive
+int strCaseCmpr(const void* a, const void* b);								// compare string case insensitive
+int rowSift(char **a); 														// กรอง row ใน timetable
+int itemCmpr(const void* a, const void* b); 								// func compare ใช้ใน priority queue
+edge edge_create(int weight, size_t vertex, char* busNo);					// func สร้าง edge ใช้เก็บใน graph
+item item_create(int distance, int fromVertex, int toVertex, char* busNo);	// func สร้าง item ใช้ใน priority queue
 
 /* main function */
 int main(int argc, char **argv){
@@ -74,7 +82,7 @@ void runMain(void){
 	}
 	timetable = mat_readcsv("data/bus_timetable.csv");                   // อ่านไฟล์ timetable.csv
 	mat_delrow(timetable, 0);// ลบ row แรกออกไป
-	ntimetable = mat_siftrow(timetable, &timeSift);                     // กรองเวลา: เอาแค่สายที่สามารถขึ้นได้นะเวลานั้นผ่านฟังก์ชั่น timeSift()
+	ntimetable = mat_siftrow(timetable, &rowSift);                     // กรองเวลา: เอาแค่สายที่สามารถขึ้นได้นะเวลานั้นผ่านฟังก์ชั่น rowSift()
 
 	/* นำเส้นทางเดินรถใส่เข้าไปใน vector */
 	signMap = vector_create(MAXCHAR);                    				// สร้าง vector
@@ -133,7 +141,7 @@ void runMain(void){
 			src = vector_find(signMap, prevStop, &strCmpr) - vector_begin(signMap);                      // หา ID ของป้ายก่อนหน้า
 			dest = vector_find(signMap, busStop, &strCmpr) - vector_begin(signMap);                      // หา ID ของป้ายปัจจุบัน
 			vector_push(G[src], edge_create(time, dest, busNo));
-			prevStop = busStop;															
+			prevStop = busStop;														
 		}
 		mat_erase(route);
 		mat_erase(weight);		
@@ -149,7 +157,6 @@ void runMain(void){
 		time = atoi(mat_get(walkRoute, i, 2));
 		idxFrom = vector_find(signMap, from, &strCmpr) - vector_begin(signMap);
 		idxTo = vector_find(signMap, to, &strCmpr) - vector_begin(signMap);
-
 		vector_push(G[idxFrom], edge_create(time, idxTo, str("Walk")));
 	}
 	mat_erase(walkRoute);
@@ -188,7 +195,7 @@ void runMain(void){
 		while(!heap_empty(pq)){
 			top = (item)heap_top(pq);
 			now = item_create(top->distance, top->fromVertex, top->toVertex, top->busNo);
-			
+
 			heap_pop(pq);
 			if(visited[now->toVertex]){
 				continue;
@@ -212,6 +219,11 @@ void runMain(void){
 		}
 
 		/* สรุปผล */
+		if(dist[dest] == 999999){
+			desktopPrint("sorry, ",32);
+			desktopPrint("we can't find the route",32);
+			return;
+		}
 		vector result = vector_create(MAXCHAR);
 		snprintf(strBuffer, MAXCHAR, "time : %d", dist[dest]);
 		desktopPrint(strBuffer, 32);
@@ -299,7 +311,7 @@ item item_create(int distance, int fromVertex, int toVertex, char* busNo){
 }
 
 /* fn เช็คว่าอยู่ในช่วงที่รถวิ่งไหม */
-int timeSift(char **a){
+int rowSift(char **a){
 	if(strcmp(a[2], "nan") == 0 || strcmp(a[3], "nan") == 0){
 		return strCaseCmpr(a[1], userCo)!=0;
 	}

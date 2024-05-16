@@ -1,7 +1,7 @@
 ﻿from,to,distance
-VictoryMonument(PhayaThaiSide),VictoryMonument(DinDaengSide),132.25
-VictoryMonument(PhayaThaiSide),VictoryMonument(RatchawithiSide),87.54
-VictoryMonument(PhayaThaiSide),VictoryMonument(PhahonYothinSide),165.11
-VictoryMonument(DinDaengSide),VictoryMonument(RatchawithiSide),148.12
-VictoryMonument(DinDaengSide),VictoryMonument(PhahonYothinSide),136.07
-VictoryMonument(PhahonYothinSide),VictoryMonument(RatchawithiSide),100.6
+VictoryMonument(PhayaThaiSide),VictoryMonument(DinDaengSide),13.25
+VictoryMonument(PhayaThaiSide),VictoryMonument(RatchawithiSide),8.54
+VictoryMonument(PhayaThaiSide),VictoryMonument(PhahonYothinSide),16.11
+VictoryMonument(DinDaengSide),VictoryMonument(RatchawithiSide),14.12
+VictoryMonument(DinDaengSide),VictoryMonument(PhahonYothinSide),13.07
+VictoryMonument(PhahonYothinSide),VictoryMonument(RatchawithiSide),10.6

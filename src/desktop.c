@@ -96,8 +96,10 @@ void strIn(char *_buffer){
     printf("│\t");
     fflush(stdout);
     scanf("%s", _buffer);
+    char strbuff[250];
+    strcpy(strbuff, _buffer);
     printf("\033[A\033[K");
-    printf("│\t%s%*s│\n", _buffer, remainSpace(_buffer, 28), "");
+    printf("│\t%s%*s│\n", strbuff, remainSpace(strbuff, 28), "");
 }
 
 int remainSpace(char *_str, int _space) {
