@@ -6,7 +6,8 @@
         "ctime": "c",
         "xlocale": "c",
         "xlocmon": "c",
-        "windows.h": "c"
+        "windows.h": "c",
+        "util.h": "c"
     },
     "editor.fontFamily": "'Fira Code Regular', 'Cascadia Code', 'Bai Jamjuree', 'Fira  Code'",
     "files.encoding": "utf8",
