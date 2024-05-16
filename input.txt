@@ -1,5 +1,5 @@
-Siphaya
-SoiSongPhra
+ThantipBusDepot
+SoiRatburana18
 0830
 150
-75 21 25 7 6
+75 2 3 4 6

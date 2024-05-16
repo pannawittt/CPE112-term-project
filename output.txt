@@ -7,18 +7,30 @@
 │                                   │
 │                                   │
 │  ■  What's the nearest bus stop?  │
-│	[A[K│	Siphaya                     │
+│	[A[K│	ThantipBusDepot             │
 │  »  Where're u going?             │
-│	[A[K│	SoiSongPhra                 │
+│	[A[K│	SoiRatburana18              │
 │  Φ  What time is it? (hhmm)       │
 │	[A[K│	0830                        │
 │  ¿? range ur walkable? (m)        │
 │	[A[K│	150                         │
 │                                   │
 │                                   │
-│ > Recent bus stop you used        │
+│ > Recent bus you used             │
 │   ├ [A[K│   ├ 75                            │
-│   ├ [A[K│   ├ 21                            │
-│   ├ [A[K│   ├ 25                            │
-│   ├ [A[K│   ├ 7                             │
-│   └ 
+│   ├ [A[K│   ├ 2                             │
+│   ├ [A[K│   ├ 3                             │
+│   ├ [A[K│   ├ 4                             │
+│   └ [A[K│   └ 6                             │
+│                                   │
+│                                   │
+│   time : 6514                     │
+│   ├ Walk → ThantipBusDepot        │
+│   ├ 75 → BangkokBankBranchPrac... │
+│   ├ 88 → SoiPrachauthit10         │
+│   ├ 75 → SoiPrachaUthit7          │
+│   ├ 88 → RatburanaHospital        │
+│   ├ 37 → WatPrasertSutthawartS... │
+│   └ 88 → SoiRatburana18           │
+│                                   │
+╘═══════════════════════════════════╛
