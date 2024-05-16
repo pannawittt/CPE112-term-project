@@ -41,6 +41,7 @@ struct item{
 	int distance;
 	int fromVertex;
 	int toVertex;
+	int walkLeft;
 	char* busNo;
 };
 
@@ -52,7 +53,7 @@ int strCaseCmpr(const void* a, const void* b);								// compare string case ins
 int rowSift(char **a); 														// กรอง row ใน timetable
 int itemCmpr(const void* a, const void* b); 								// func compare ใช้ใน priority queue
 edge edge_create(int weight, size_t vertex, char* busNo);					// func สร้าง edge ใช้เก็บใน graph
-item item_create(int distance, int fromVertex, int toVertex, char* busNo);	// func สร้าง item ใช้ใน priority queue
+item item_create(int distance, int fromVertex, int toVertex, char* busNo, int walkLeft);	// func สร้าง item ใช้ใน priority queue
 
 /* main function */
 int main(int argc, char **argv){
@@ -74,7 +75,6 @@ void runMain(void){
 	vector signMap;
 	mat timetable, ntimetable;
 	size_t nodeNum;
-	
 	if(strCaseCmpr(userCo, "BMTA")==0){
 		strcpy(userCo, "TSB");
 	}else if(strCaseCmpr(userCo, "TSB")==0){
@@ -191,10 +191,10 @@ void runMain(void){
 			visited[i] = 0;
 		}
 		dist[src] = 0;
-		heap_push(pq, item_create(0, -1, src, str("Walk")));
+		heap_push(pq, item_create(0, -1, src, str("Walk"), walkLength));
 		while(!heap_empty(pq)){
 			top = (item)heap_top(pq);
-			now = item_create(top->distance, top->fromVertex, top->toVertex, top->busNo);
+			now = item_create(top->distance, top->fromVertex, top->toVertex, top->busNo, top->walkLeft);
 
 			heap_pop(pq);
 			if(visited[now->toVertex]){
@@ -212,7 +212,13 @@ void runMain(void){
 			while(next = (edge)vector_trav(G[now->toVertex])){
 				if(!visited[next->vertex]){
 					size_t newDist = next->weight + dist[now->toVertex];
-					heap_push(pq, item_create(newDist, now->toVertex, next->vertex, next->busNo));
+					int walkLeft = now->walkLeft;
+					if(strcmp(next->busNo, "Walk") == 0){
+						walkLeft -= next->weight;
+					}
+					if(walkLeft >= 0){
+						heap_push(pq, item_create(newDist, now->toVertex, next->vertex, next->busNo, now->walkLeft));
+					}
 				}
 			}
 
@@ -298,12 +304,13 @@ edge edge_create(int weight, size_t vertex, char* busNo){
 	return new_edge;
 }
 
-item item_create(int distance, int fromVertex, int toVertex, char* busNo){
+item item_create(int distance, int fromVertex, int toVertex, char* busNo, int walkLeft){
 	item new_item = (item)malloc(sizeof(struct item));
 	new_item->distance = distance;
 	new_item->fromVertex = fromVertex;
 	new_item->toVertex = toVertex;
 	new_item->busNo = (char*)malloc(MAXCHAR);
+	new_item->walkLeft = walkLeft;
 	if(busNo){
 		memcpy(new_item->busNo, busNo, MAXCHAR);
 	}
