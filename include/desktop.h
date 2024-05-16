@@ -3,7 +3,7 @@
 
 #include "vector.h"
 
-void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, vector userBus);
+void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, vector userBus, char* userCo);
 void desktopEnd();
 void desktopPrint(char* _str, size_t _space);
 

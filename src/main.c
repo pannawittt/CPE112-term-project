@@ -18,8 +18,9 @@ typedef struct item *item;
 
 /* global variable & struct */
 char userTime[10];
-char userSrc[MAXCHAR] = "WatTuk";
-char userDest[MAXCHAR] = "ChaloemKrung";
+char userSrc[MAXCHAR];
+char userDest[MAXCHAR];
+char userCo[MAXCHAR];
 char strBuffer[MAXCHAR];
 int walkLength = 0;
 vector busPrior;
@@ -39,7 +40,8 @@ struct item{
 /* function */
 void runMain();
 void runTest();
-int strCmpr(const void* a, const void* b); 		// ฟังก์ชั่นเปรียบเทียบ key ใน map
+int strCmpr(const void* a, const void* b);
+int strCaseCmpr(const void* a, const void* b);
 int timeSift(char **a); 						// กรอง row ใน timetable
 int itemCmpr(const void* a, const void* b);
 edge edge_create(int weight, size_t vertex, char* busNo);
@@ -50,7 +52,7 @@ int main(int argc, char **argv){
 	DBG = fopen("debug.txt","w");
 	busPrior = vector_create(MAXCHAR);
 	if(argc == 1){
-		desktopIn(userTime, userSrc, userDest, &walkLength, busPrior);
+		desktopIn(userTime, userSrc, userDest, &walkLength, busPrior, userCo);
 		runMain();
 		desktopEnd();
 	}else if(strcmp(argv[0], "test")){
@@ -66,9 +68,14 @@ void runMain(void){
 	mat timetable, ntimetable;
 	size_t nodeNum;
 	
+	if(strCaseCmpr(userCo, "BMTA")==0){
+		strcpy(userCo, "TSB");
+	}else if(strCaseCmpr(userCo, "TSB")==0){
+		strcpy(userCo, "BMTA");
+	}
 	timetable = mat_readcsv("data/bus_timetable.csv");                   // อ่านไฟล์ timetable.csv
 	mat_delrow(timetable, 0);// ลบ row แรกออกไป
-	ntimetable = mat_siftrow(timetable, &timeSift);                      // กรองเวลา: เอาแค่สายที่สามารถขึ้นได้นะเวลานั้นผ่านฟังก์ชั่น timeSift()
+	ntimetable = mat_siftrow(timetable, &timeSift);                     // กรองเวลา: เอาแค่สายที่สามารถขึ้นได้นะเวลานั้นผ่านฟังก์ชั่น timeSift()
 
 	/* นำเส้นทางเดินรถใส่เข้าไปใน vector */
 	signMap = vector_create(MAXCHAR);                    				// สร้าง vector
@@ -152,7 +159,7 @@ void runMain(void){
 	{
 		heap pq;
 		size_t src, dest;
-		int valid, *dist, *idTrack, *visited;
+		int *dist, *idTrack, *visited;
 		char** busTrack;
 		item now, top;
 		edge next;
@@ -161,18 +168,14 @@ void runMain(void){
 		idTrack = (int*)malloc(sizeof(int)*nodeNum);
 		visited = (int*)malloc(sizeof(int)*nodeNum);
 		busTrack = (char**)malloc(sizeof(char*)*nodeNum);
-		valid = 1;
 		pq = heap_create(sizeof(struct item), &itemCmpr);
-		src = vector_find(signMap, userSrc, &strCmpr) - vector_begin(signMap);
-		dest = vector_find(signMap, userDest, &strCmpr) - vector_begin(signMap);
+		src = vector_find(signMap, userSrc, &strCaseCmpr) - vector_begin(signMap);
+		dest = vector_find(signMap, userDest, &strCaseCmpr) - vector_begin(signMap);
 		
-		if(src >= nodeNum){
-			desktopPrint("not found source", 32);
-			valid = 0;
-		}
-		if(dest >= nodeNum){
-			desktopPrint("not found destination", 32);
-			valid = 0;
+		if(src >= nodeNum || dest >= nodeNum){
+			desktopPrint("try again, the bus stop", 32);
+			desktopPrint("may use another name", 32);
+			return;
 		}
 
 		for(int i=0;i<nodeNum;i++){
@@ -180,9 +183,6 @@ void runMain(void){
 			idTrack[i] = -1;
 			busTrack[i] = (char*)malloc(MAXCHAR);
 			visited[i] = 0;
-		}
-		if(!valid){
-			return;	
 		}
 		dist[src] = 0;
 		heap_push(pq, item_create(0, -1, src, str("Walk")));
@@ -233,6 +233,7 @@ void runMain(void){
 			prev = busTrack[iter];
 			iter = nextIter;
 		}
+
 		char* path;
 		vector_reverse(result);
 		while(path = vector_trav(result)){
@@ -243,12 +244,18 @@ void runMain(void){
 }
 
 void runTest(void){
-	mat test = mat_readcsv("data/weights/1_in.csv");
-	printf("%s\n", mat_get(test, 1, 1));
 }
 
 int strCmpr(const void* a, const void* b){
 	return strcmp((char*)a, (char*)b);
+}
+
+int strCaseCmpr(const void* a, const void* b){
+	char A[250], B[250];
+	strcpy(A, (char*)a);
+	strcpy(B, (char*)b);
+
+	return strcmp(toLower(A), toLower(B));
 }
 
 int itemCmpr(const void* a, const void* b){
@@ -295,7 +302,7 @@ item item_create(int distance, int fromVertex, int toVertex, char* busNo){
 /* fn เช็คว่าอยู่ในช่วงที่รถวิ่งไหม */
 int timeSift(char **a){
 	if(strcmp(a[2], "nan") == 0 || strcmp(a[3], "nan") == 0){
-		return 0;
+		return strCaseCmpr(a[1], userCo)!=0;
 	}
-	return minute(a[2]) <= minute(userTime) && minute(a[3]) >= minute(userTime);
+	return minute(a[2]) <= minute(userTime) && minute(a[3]) >= minute(userTime) && (strCaseCmpr(a[1], userCo)!=0);
 }

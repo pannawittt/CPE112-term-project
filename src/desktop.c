@@ -11,7 +11,7 @@ void vectIn(vector *_buffer);
 void adaptiveWindowsTree(vector _buffer);
 void adaptiveWindowsLastChild(vector _buffer);
 
-void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, vector userBus){
+void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, vector userBus, char* userCo){
     //set output code UTF-8
     SetConsoleOutputCP(65001);
 
@@ -34,8 +34,10 @@ void desktopIn(char* userTime, char* userSrc, char* userDest, int* walkLength, v
     strIn(userDest);
     printf("│  Φ  What time is it? (hhmm)       │\n");
     strIn(userTime);
-    printf("│  ¿? range ur walkable? (m)        │\n");
+    printf("│  ¿? Time u can spend walking? (s) │\n");
     intIn(walkLength);
+    printf("│  Ʃ  BMTA or TSB or BOTH?          │\n");
+    strIn(userCo);
     printf("│                                   │\n");
     printf("│                                   │\n");
     printf("│ > Recent bus you used             │\n");
