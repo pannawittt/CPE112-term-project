@@ -1,5 +1,4 @@
 
-*.o
 *.exe
 test.c
 edit.py
