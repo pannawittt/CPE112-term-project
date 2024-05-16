@@ -13,7 +13,6 @@ typedef struct item *item;
 #include "matrix.h"
 #include "vector.h"
 #include "heap.h"
-#include "map.h"
 #include "desktop.h"
 
 /* global variable & struct */
