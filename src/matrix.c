@@ -266,7 +266,7 @@ int* _getLengthCSV(const char* _file){
     while(fgets(buffer, MAX_CHAR*100, f)){
         rows++;
         token = strtok(buffer, ",");
-        size_t temp = 1;
+        size_t temp = 0;
         while(token != NULL){
             token = strtok(NULL, ",");
             temp++;
