@@ -65,6 +65,13 @@ vector_swap(vector _vector, size_t _first, size_t _second){
     free(temp);
 }
 
+void vector_reverse(vector _vector){
+    size_t n = vector_size(_vector);
+    for(int i=0;i<n/2;i++){
+        vector_swap(_vector, i, n-i-1);
+    }
+}
+
 size_t
 vector_size(const vector _vector){
     return _vector->size;
@@ -126,16 +133,6 @@ void**
 vector_find(const vector _vector, void* _value, int (*cmpr)(const void*, const void*)){
     for(int i=0;i<_vector->size;i++){
         if(!cmpr(_vector->array[i], _value)){
-            return vector_get(_vector, i);
-        }
-    }
-    return vector_end(_vector);
-}
-
-void**
-vector_strfind(const vector _vector, void* _value){
-    for(int i=0;i<_vector->size;i++){
-        if(!strcmp(_vector->array[i], _value)){
             return vector_get(_vector, i);
         }
     }
